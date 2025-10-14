@@ -8,7 +8,10 @@ exports.handler = async (event) => {
   try {
     const { message } = JSON.parse(event.body);
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    // Use the correct model name - FIXED!
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    
     const result = await model.generateContent(message);
     const response = await result.response;
 
