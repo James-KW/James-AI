@@ -18,10 +18,18 @@ exports.handler = async (event) => {
   try {
     const { message } = JSON.parse(event.body);
     
-    // CORRECT: This matches what you set in Netlify
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // TRY DIFFERENT MODEL NAMES:
+    
+    // Option 1: Most common
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    
+    // Option 2: If above doesn't work
+    // const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+    
+    // Option 3: Latest model
+    // const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
     
     const result = await model.generateContent(message);
     const response = await result.response;
@@ -35,7 +43,10 @@ exports.handler = async (event) => {
     return {
       statusCode: 500,
       headers,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ 
+        error: error.message,
+        suggestion: 'Try changing the model name to gemini-pro or gemini-1.0-pro'
+      })
     };
   }
 };
