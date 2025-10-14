@@ -11,41 +11,48 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, headers, body: 'Method Not Allowed' };
-  }
-
   try {
     const { message } = JSON.parse(event.body);
-    
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     
-    // TRY DIFFERENT MODEL NAMES:
+    // Use Gemini 2.5 model names:
+    const modelsToTry = [
+      "gemini-2.5-pro-exp-03-25",  // Gemini 2.5 Pro
+      "gemini-2.0-flash-exp",      // Gemini 2.0 Flash
+      "gemini-2.5-flash-exp",      // Gemini 2.5 Flash
+      "gemini-2.0-flash-thinking", // Alternative
+    ];
     
-    // Option 1: Most common
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    let lastError;
+    for (const modelName of modelsToTry) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(message);
+        const response = await result.response;
+        
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ 
+            text: response.text(),
+            modelUsed: modelName
+          })
+        };
+      } catch (error) {
+        lastError = error;
+        continue; // Try next model
+      }
+    }
     
-    // Option 2: If above doesn't work
-    // const model = genAI.getGenerativeModel({ model: "models/gemini-pro" });
+    throw lastError;
     
-    // Option 3: Latest model
-    // const model = genAI.getGenerativeModel({ model: "gemini-1.0-pro" });
-    
-    const result = await model.generateContent(message);
-    const response = await result.response;
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ text: response.text() })
-    };
   } catch (error) {
     return {
       statusCode: 500,
       headers,
       body: JSON.stringify({ 
         error: error.message,
-        suggestion: 'Try changing the model name to gemini-pro or gemini-1.0-pro'
+        suggestion: 'Gemini 2.5 requires specific model names'
       })
     };
   }
