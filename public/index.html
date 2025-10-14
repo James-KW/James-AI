@@ -1,687 +1,617 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSeek Chat Interface</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <title>DeepSeek Chat</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e6e6e6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fa;
+            height: 100vh;
+            overflow: hidden;
         }
         
-        .chat-container {
-            width: 100%;
-            max-width: 900px;
-            height: 80vh;
-            background-color: #0f3460;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        .app-container {
+            display: flex;
+            height: 100vh;
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Compact Sidebar */
+        .sidebar {
+            width: 220px;
+            background: #1a1a1a;
+            color: white;
             display: flex;
             flex-direction: column;
+            border-right: 1px solid #333;
+        }
+        
+        .sidebar-header {
+            padding: 16px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .new-chat-btn {
+            width: 100%;
+            padding: 10px;
+            background: #10a37f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+        }
+        
+        /* Main Chat Area */
+        .main-chat {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
         }
         
         .chat-header {
-            background-color: #1a1a2e;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2d3746;
-        }
-        
-        .logo {
+            padding: 12px 20px;
+            border-bottom: 1px solid #e5e5e5;
+            background: white;
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .logo-text {
-            font-size: 24px;
-            font-weight: 700;
-            background: linear-gradient(90deg, #4cc9f0, #4361ee);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        .search-toggle {
-            background: transparent;
-            border: 1px solid #4cc9f0;
-            color: #4cc9f0;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .search-toggle:hover {
-            background-color: rgba(76, 201, 240, 0.1);
         }
         
         .chat-messages {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            padding: 20px;
+            background: white;
         }
         
+        /* Compact Message Styles */
         .message {
-            max-width: 80%;
-            padding: 15px 20px;
-            border-radius: 18px;
-            line-height: 1.5;
-            position: relative;
-            animation: fadeIn 0.3s ease;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .bot-message {
-            background-color: #1a1a2e;
-            border-bottom-left-radius: 5px;
-            align-self: flex-start;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            margin-bottom: 20px;
+            max-width: 100%;
         }
         
         .user-message {
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-            border-bottom-right-radius: 5px;
-            align-self: flex-end;
-            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.3);
+            justify-content: flex-end;
         }
         
-        .message-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 8px;
+        .ai-message {
+            justify-content: flex-start;
         }
         
         .avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            margin-right: 10px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        
-        .bot-avatar {
-            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+            justify-content: center;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
         }
         
         .user-avatar {
-            background: linear-gradient(135deg, #f72585 0%, #7209b7 100%);
+            background: #10a37f;
+            color: white;
         }
         
-        .sender-name {
-            font-weight: 600;
-            font-size: 14px;
+        .ai-avatar {
+            background: #6e6e80;
+            color: white;
         }
         
         .message-content {
-            font-size: 15px;
+            max-width: 75%;
+            min-width: 0;
         }
         
-        .typing-indicator {
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 8px;
+            line-height: 1.4;
+            font-size: 14px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .user-message .message-bubble {
+            background: #10a37f;
+            color: white;
+            border-bottom-right-radius: 2px;
+        }
+        
+        .ai-message .message-bubble {
+            background: #f7f7f8;
+            color: #1a1a1a;
+            border: 1px solid #e5e5e5;
+            border-bottom-left-radius: 2px;
+        }
+        
+        /* Compact Code Blocks */
+        .code-block {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 8px 0;
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.3;
+            overflow-x: auto;
+            position: relative;
+            border: 1px solid #333;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .code-language {
+            color: #888;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .copy-btn {
+            background: #40414f;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        /* Input Area with Tools */
+        .input-container {
+            padding: 16px 20px;
+            background: white;
+            border-top: 1px solid #e5e5e5;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            max-width: 100%;
+        }
+        
+        .input-tools {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .tool-btn {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
             display: flex;
             align-items: center;
-            gap: 5px;
-            padding: 10px 15px;
-            color: #a0a0a0;
-            font-style: italic;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        
+        .tool-btn:hover {
+            background: #f7f7f8;
+            border-color: #10a37f;
+        }
+        
+        #messageInput {
+            width: 100%;
+            padding: 10px 45px 10px 12px;
+            border: 1px solid #c5c5d2;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+            line-height: 1.4;
+            font-family: inherit;
+        }
+        
+        #messageInput:focus {
+            border-color: #10a37f;
+            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1);
+        }
+        
+        #sendButton {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            background: #10a37f;
+            color: white;
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #sendButton:disabled {
+            background: #c5c5d2;
+            cursor: not-allowed;
+        }
+        
+        /* File Upload */
+        .file-upload {
+            display: none;
+        }
+        
+        .file-preview {
+            margin-top: 8px;
+            padding: 8px;
+            background: #f7f7f8;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: #f7f7f8;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+            border: 1px solid #e5e5e5;
         }
         
         .typing-dots {
             display: flex;
             gap: 3px;
+            margin-left: 10px;
         }
         
         .typing-dot {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
+            background: #10a37f;
             border-radius: 50%;
-            background-color: #4cc9f0;
-            animation: typingAnimation 1.4s infinite ease-in-out;
+            animation: typing-bounce 1.4s infinite ease-in-out;
         }
         
-        .typing-dot:nth-child(1) { animation-delay: 0s; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         
-        @keyframes typingAnimation {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-5px); }
+        @keyframes typing-bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
         }
         
-        .code-block {
-            background-color: #1e1e1e;
-            border-radius: 8px;
-            overflow: hidden;
-            margin: 10px 0;
-            border: 1px solid #2d3746;
+        /* Scrollbar */
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
         }
         
-        .code-header {
-            background-color: #2d2d2d;
-            padding: 8px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: #a0a0a0;
-            border-bottom: 1px solid #3d3d3d;
-        }
-        
-        .code-content {
-            padding: 15px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        
-        .code-content pre {
-            margin: 0;
-            white-space: pre-wrap;
-        }
-        
-        .copy-btn {
-            background: transparent;
-            border: none;
-            color: #a0a0a0;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            transition: color 0.3s;
-        }
-        
-        .copy-btn:hover {
-            color: #4cc9f0;
-        }
-        
-        .welcome-section {
-            text-align: center;
-            padding: 30px 20px;
-            background: rgba(26, 26, 46, 0.5);
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .welcome-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
-            color: #4cc9f0;
-        }
-        
-        .welcome-text {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #4cc9f0, #4361ee);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        .welcome-subtext {
-            color: #a0a0a0;
-            margin-bottom: 20px;
-        }
-        
-        .features {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .feature {
-            background: rgba(26, 26, 46, 0.7);
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border: 1px solid #2d3746;
-        }
-        
-        .feature i {
-            color: #4cc9f0;
-        }
-        
-        .chat-input-container {
-            padding: 20px;
-            background-color: #1a1a2e;
-            border-top: 1px solid #2d3746;
-            display: flex;
-            gap: 15px;
-        }
-        
-        .chat-input {
-            flex: 1;
-            padding: 15px 20px;
-            border-radius: 30px;
-            border: 1px solid #2d3746;
-            background-color: #0f3460;
-            color: #e6e6e6;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        
-        .chat-input:focus {
-            border-color: #4cc9f0;
-            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
-        }
-        
-        .send-button {
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
-        }
-        
-        .send-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #0f3460;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #4cc9f0;
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4361ee;
-        }
-        
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .chat-container {
-                height: 90vh;
-                border-radius: 15px;
-            }
-            
-            .message {
-                max-width: 90%;
-            }
-            
-            .logo-text {
-                font-size: 20px;
-            }
-            
-            .welcome-text {
-                font-size: 24px;
-            }
-            
-            .features {
-                flex-direction: column;
-                align-items: center;
-            }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c5c5d2;
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="logo">
-                <div class="logo-icon">DS</div>
-                <div class="logo-text">DeepSeek</div>
+    <div class="app-container">
+        <!-- Compact Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h3 style="font-size: 16px;">DeepSeek</h3>
+                <button class="new-chat-btn" onclick="newChat()">+ New Chat</button>
             </div>
-            <button class="search-toggle">
-                <i class="fas fa-search"></i>
-                DeepThink Search
-            </button>
+            <div class="chat-history">
+                <!-- Chat history would go here -->
+            </div>
         </div>
         
-        <div class="chat-messages">
-            <div class="welcome-section">
-                <div class="welcome-icon">
-                    <i class="fas fa-robot"></i>
-                </div>
-                <div class="welcome-text">Hi, I'm DeepSeek</div>
-                <div class="welcome-subtext">How can I help you today?</div>
-                
-                <div class="features">
-                    <div class="feature">
-                        <i class="fas fa-lightbulb"></i>
-                        Creative ideas
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-code"></i>
-                        Code generation
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-question-circle"></i>
-                        Answer questions
-                    </div>
-                    <div class="feature">
-                        <i class="fas fa-pen-fancy"></i>
-                        Content writing
+        <!-- Main Chat Area -->
+        <div class="main-chat">
+            <div class="chat-header">
+                <h3 style="font-size: 15px;">DeepSeek Chat</h3>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="message ai-message">
+                    <div class="avatar ai-avatar">AI</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            Hello! I'm your AI assistant. How can I help you today?
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="message bot-message">
-                <div class="message-header">
-                    <div class="avatar bot-avatar">AI</div>
-                    <div class="sender-name">DeepSeek</div>
-                </div>
-                <div class="message-content">
-                    Hi! I'm DeepSeek, your AI assistant. I'm here to help you with a variety of tasks including answering questions, generating content, coding assistance, and much more. What would you like to explore today?
-                </div>
-            </div>
-            
-            <div class="message user-message">
-                <div class="message-header">
-                    <div class="avatar user-avatar">You</div>
-                    <div class="sender-name">You</div>
-                </div>
-                <div class="message-content">
-                    I need help creating a modern chat interface for my application.
-                </div>
-            </div>
-            
-            <div class="message bot-message">
-                <div class="message-header">
-                    <div class="avatar bot-avatar">AI</div>
-                    <div class="sender-name">DeepSeek</div>
-                </div>
-                <div class="message-content">
-                    I'd be happy to help you create a modern chat interface! I can provide you with HTML, CSS, and JavaScript code for a sleek and responsive design. Would you like me to generate a complete implementation or focus on specific aspects of the interface?
-                </div>
-            </div>
-            
-            <div class="typing-indicator" id="typingIndicator" style="display: none;">
-                <span>DeepSeek is typing</span>
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="avatar ai-avatar">AI</div>
+                <div style="font-size: 13px;">Thinking</div>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                 </div>
             </div>
-        </div>
-        
-        <div class="chat-input-container">
-            <input type="text" class="chat-input" placeholder="Message DeepSeek" id="chatInput">
-            <button class="send-button" id="sendButton">
-                <i class="fas fa-paper-plane"></i>
-            </button>
+            
+            <div class="input-container">
+                <div class="input-tools">
+                    <button class="tool-btn" onclick="document.getElementById('fileInput').click()">
+                        📎 Image/Doc
+                    </button>
+                    <button class="tool-btn" onclick="startOCR()">
+                        📷 OCR
+                    </button>
+                    <button class="tool-btn" onclick="toggleMic()">
+                        🎤 Mic
+                    </button>
+                    <button class="tool-btn" onclick="uploadFile()">
+                        📁 Upload
+                    </button>
+                </div>
+                
+                <div class="input-wrapper">
+                    <textarea 
+                        id="messageInput" 
+                        placeholder="Message DeepSeek..." 
+                        rows="1"
+                        autocomplete="off"
+                    ></textarea>
+                    <button id="sendButton" onclick="sendMessage()">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M22 2L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <input type="file" id="fileInput" class="file-upload" accept="image/*,.pdf,.doc,.docx" onchange="handleFileSelect(this.files)">
+                <div id="filePreview" class="file-preview"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Initialize highlight.js for code syntax highlighting
-        hljs.highlightAll();
-        
-        // DOM elements
-        const chatMessages = document.querySelector('.chat-messages');
-        const chatInput = document.getElementById('chatInput');
+        const chatMessages = document.getElementById('chatMessages');
+        const messageInput = document.getElementById('messageInput');
         const sendButton = document.getElementById('sendButton');
         const typingIndicator = document.getElementById('typingIndicator');
-        
-        // Function to add a new message
-        function addMessage(content, isUser = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message');
-            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
-            
-            const sender = isUser ? 'You' : 'DeepSeek';
-            const avatarClass = isUser ? 'user-avatar' : 'bot-avatar';
-            const avatarText = isUser ? 'You' : 'AI';
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <div class="avatar ${avatarClass}">${avatarText}</div>
-                    <div class="sender-name">${sender}</div>
-                </div>
-                <div class="message-content">${content}</div>
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Function to simulate typing effect
-        function typeMessage(message, isCode = false, callback) {
-            // Show typing indicator
-            typingIndicator.style.display = 'flex';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // Create message container
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('message', 'bot-message');
-            
-            messageDiv.innerHTML = `
-                <div class="message-header">
-                    <div class="avatar bot-avatar">AI</div>
-                    <div class="sender-name">DeepSeek</div>
-                </div>
-                <div class="message-content">
-                    ${isCode ? '<div class="code-block"><div class="code-header">JavaScript <button class="copy-btn"><i class="far fa-copy"></i> Copy</button></div><div class="code-content"><pre><code class="language-javascript"></code></pre></div></div>' : ''}
-                    <div class="text-content" ${isCode ? 'style="display:none;"' : ''}></div>
-                </div>
-            `;
-            
-            chatMessages.appendChild(messageDiv);
-            
-            const textContainer = isCode 
-                ? messageDiv.querySelector('.text-content')
-                : messageDiv.querySelector('.message-content');
+        const filePreview = document.getElementById('filePreview');
+        let isRecording = false;
+
+        // Auto-resize textarea
+        messageInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Type text with natural pacing
+        function typeText(element, text, speed = 25) {
+            return new Promise((resolve) => {
+                let index = 0;
+                let currentElement = element;
                 
-            const codeContainer = isCode 
-                ? messageDiv.querySelector('code')
-                : null;
-            
-            let index = 0;
-            const typingSpeed = isCode ? 10 : 30; // Code types faster
-            
-            function typeCharacter() {
-                if (index < message.length) {
-                    const char = message.charAt(index);
-                    
-                    if (isCode) {
-                        codeContainer.textContent += char;
-                        // Re-highlight code as we type
-                        hljs.highlightElement(codeContainer);
+                function type() {
+                    if (index < text.length) {
+                        const char = text.charAt(index);
+                        
+                        // Handle code blocks
+                        if (text.substring(index, index + 3) === '```') {
+                            const codeBlock = document.createElement('div');
+                            codeBlock.className = 'code-block';
+                            
+                            // Find code content
+                            const endIndex = text.indexOf('```', index + 3);
+                            if (endIndex !== -1) {
+                                const codeContent = text.substring(index + 3, endIndex).trim();
+                                const firstNewline = codeContent.indexOf('\n');
+                                let language = 'text';
+                                let code = codeContent;
+                                
+                                if (firstNewline !== -1) {
+                                    language = codeContent.substring(0, firstNewline).trim() || 'text';
+                                    code = codeContent.substring(firstNewline + 1);
+                                }
+                                
+                                codeBlock.innerHTML = `
+                                    <div class="code-header">
+                                        <span class="code-language">${language}</span>
+                                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                                    </div>
+                                    <pre><code>${code}</code></pre>
+                                `;
+                                
+                                element.appendChild(codeBlock);
+                                index = endIndex + 3;
+                            }
+                        } else {
+                            currentElement.innerHTML += char;
+                            index++;
+                        }
+                        
+                        // Scroll to bottom
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                        
+                        // Natural typing speed
+                        const delay = ['.', ',', '!', '?', ';', ':', '\n'].includes(char) ? speed * 2 : speed;
+                        setTimeout(type, delay);
                     } else {
-                        textContainer.textContent += char;
+                        resolve();
                     }
-                    
-                    index++;
+                }
+                
+                type();
+            });
+        }
+
+        // Copy code to clipboard
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.textContent;
+                button.textContent = 'Copied!';
+                setTimeout(() => {
+                    button.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // Add message to chat
+        function addMessage(text, isUser) {
+            return new Promise(async (resolve) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+                
+                const avatar = document.createElement('div');
+                avatar.className = `avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
+                avatar.textContent = isUser ? 'You' : 'AI';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                
+                const bubble = document.createElement('div');
+                bubble.className = 'message-bubble';
+                
+                messageContent.appendChild(bubble);
+                messageDiv.appendChild(avatar);
+                messageDiv.appendChild(messageContent);
+                chatMessages.appendChild(messageDiv);
+                
+                if (isUser) {
+                    bubble.textContent = text;
                     chatMessages.scrollTop = chatMessages.scrollHeight;
-                    setTimeout(typeCharacter, typingSpeed);
+                    resolve();
                 } else {
-                    // Hide typing indicator when done
-                    typingIndicator.style.display = 'none';
-                    
-                    // Add copy functionality to code blocks
-                    if (isCode) {
-                        const copyBtn = messageDiv.querySelector('.copy-btn');
-                        copyBtn.addEventListener('click', () => {
-                            navigator.clipboard.writeText(message).then(() => {
-                                const originalText = copyBtn.innerHTML;
-                                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                                setTimeout(() => {
-                                    copyBtn.innerHTML = originalText;
-                                }, 2000);
-                            });
-                        });
-                    }
-                    
-                    // Execute callback if provided
-                    if (callback) callback();
+                    await typeText(bubble, text, 20);
+                    resolve();
+                }
+            });
+        }
+
+        // File handling
+        function handleFileSelect(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                filePreview.innerHTML = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                
+                // For images, show preview
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        filePreview.innerHTML += `<br><img src="${e.target.result}" style="max-width: 100px; margin-top: 5px;">`;
+                    };
+                    reader.readAsDataURL(file);
                 }
             }
-            
-            // Start typing after a short delay
-            setTimeout(typeCharacter, 500);
         }
-        
-        // Function to simulate bot response with typing effect
-        function simulateBotResponse(userMessage) {
-            // Show typing indicator immediately
+
+        // Tool functions
+        function startOCR() {
+            alert('OCR feature would be implemented here');
+        }
+
+        function toggleMic() {
+            isRecording = !isRecording;
+            alert(isRecording ? 'Microphone activated' : 'Microphone deactivated');
+        }
+
+        function uploadFile() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Handle Enter key
+        messageInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Send message function
+        async function sendMessage() {
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            messageInput.disabled = true;
+            sendButton.disabled = true;
+
+            await addMessage(message, true);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            filePreview.innerHTML = '';
+
             typingIndicator.style.display = 'flex';
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // Hide typing indicator after a random delay (simulating thinking)
-            setTimeout(() => {
-                // Determine response type based on user message
-                const lowerMessage = userMessage.toLowerCase();
+
+            try {
+                const response = await fetch('/.netlify/functions/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
                 
-                if (lowerMessage.includes('code') || lowerMessage.includes('javascript') || lowerMessage.includes('html') || lowerMessage.includes('css')) {
-                    // Code response
-                    const codeExample = `// Example: Modern Chat Interface
-function createChatInterface() {
-    const chatContainer = document.createElement('div');
-    chatContainer.className = 'chat-container';
-    
-    // Add messages with typing effect
-    function typeMessage(text, element, speed = 30) {
-        let index = 0;
-        function type() {
-            if (index < text.length) {
-                element.textContent += text.charAt(index);
-                index++;
-                setTimeout(type, speed);
-            }
-        }
-        type();
-    }
-    
-    return chatContainer;
-}
-
-// Initialize the chat
-const chat = createChatInterface();
-document.body.appendChild(chat);`;
-                    
-                    typeMessage(codeExample, true);
+                const data = await response.json();
+                typingIndicator.style.display = 'none';
+                
+                if (data.text) {
+                    await addMessage(data.text, false);
                 } else {
-                    // Regular text response
-                    const responses = [
-                        "I understand your request. Let me help you with that. I can provide detailed information, generate code, or assist with any specific questions you might have about your project.",
-                        "That's an interesting question. Based on my knowledge, I can offer several approaches to solve this problem. Would you like me to elaborate on any specific aspect?",
-                        "Thanks for your message! I'm processing your request and will provide a comprehensive response. Is there anything specific you'd like me to focus on?",
-                        "I've analyzed your query and can provide multiple solutions. Let me know if you'd like me to proceed with the most common approach or if you have specific requirements."
-                    ];
-                    
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    typeMessage(randomResponse);
+                    await addMessage('Error: ' + (data.error || 'Unknown error'), false);
                 }
-            }, 1000);
-        }
-        
-        // Send message on button click
-        sendButton.addEventListener('click', () => {
-            const message = chatInput.value.trim();
-            if (message) {
-                addMessage(message, true);
-                chatInput.value = '';
-                simulateBotResponse(message);
+            } catch (error) {
+                typingIndicator.style.display = 'none';
+                await addMessage('Connection error: ' + error.message, false);
             }
-        });
-        
-        // Send message on Enter key
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendButton.click();
-            }
-        });
-        
-        // Focus on input when page loads
-        chatInput.focus();
-        
-        // Demo: Simulate initial typing message after page loads
-        setTimeout(() => {
-            const demoMessage = "I see you're interested in chat interfaces. I can help you create one with real-time typing effects and code display capabilities. Let me show you an example:";
-            typeMessage(demoMessage, false, () => {
-                // After the first message is typed, show a code example
-                setTimeout(() => {
-                    const codeExample = `// Real-time typing effect implementation
-function typeText(element, text, speed = 30) {
-    let i = 0;
-    element.innerHTML = '';
-    
-    function type() {
-        if (i < text.length) {
-            element.innerHTML += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        }
-    }
-    
-    type();
-}
 
-// Usage
-const messageElement = document.getElementById('message');
-typeText(messageElement, 'Hello! This text is being typed in real-time.');`;
-                    
-                    typeMessage(codeExample, true);
-                }, 500);
-            });
-        }, 2000);
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            messageInput.focus();
+        }
+
+        // New chat function
+        function newChat() {
+            chatMessages.innerHTML = `
+                <div class="message ai-message">
+                    <div class="avatar ai-avatar">AI</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            Hello! I'm your AI assistant. How can I help you today?
+                        </div>
+                    </div>
+                </div>
+            `;
+            filePreview.innerHTML = '';
+        }
+
+        // Focus input on load
+        messageInput.focus();
     </script>
 </body>
 </html>
