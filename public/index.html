@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gemini AI Chat</title>
+    <title>DeepSeek Chat Interface</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -16,115 +18,85 @@
         body {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #e6e6e6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .chat-container {
+            width: 100%;
+            max-width: 900px;
+            height: 80vh;
+            background-color: #0f3460;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
         }
         
-        .header {
+        .chat-header {
             background-color: #1a1a2e;
             padding: 20px;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid #2d3746;
         }
         
         .logo {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 10px;
+            gap: 10px;
         }
         
         .logo-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 20px;
-            color: white;
+            font-size: 18px;
         }
         
         .logo-text {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(90deg, #4285f4, #34a853);
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
         
-        .subtitle {
-            color: #a0a0a0;
-            font-size: 16px;
-            margin-top: 5px;
-        }
-        
-        .api-key-section {
-            background: rgba(26, 26, 46, 0.8);
-            padding: 15px;
-            margin: 20px auto;
-            border-radius: 10px;
-            max-width: 600px;
-            border: 1px solid #2d3746;
-        }
-        
-        .api-key-input {
-            width: 100%;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid #2d3746;
-            background-color: #0f3460;
-            color: #e6e6e6;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        
-        .api-key-input:focus {
-            outline: none;
-            border-color: #4285f4;
-        }
-        
-        .save-key-btn {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
+        .search-toggle {
+            background: transparent;
+            border: 1px solid #4cc9f0;
+            color: #4cc9f0;
+            padding: 8px 15px;
+            border-radius: 20px;
             cursor: pointer;
-            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
             transition: all 0.3s ease;
         }
         
-        .save-key-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        .chat-container {
-            flex: 1;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            height: calc(100vh - 200px);
+        .search-toggle:hover {
+            background-color: rgba(76, 201, 240, 0.1);
         }
         
         .chat-messages {
             flex: 1;
-            overflow-y: auto;
             padding: 20px;
-            background-color: #0f3460;
-            border-radius: 15px;
-            margin-bottom: 20px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 20px;
-            border: 1px solid #2d3746;
         }
         
         .message {
@@ -132,6 +104,7 @@
             padding: 15px 20px;
             border-radius: 18px;
             line-height: 1.5;
+            position: relative;
             animation: fadeIn 0.3s ease;
         }
         
@@ -144,12 +117,14 @@
             background-color: #1a1a2e;
             border-bottom-left-radius: 5px;
             align-self: flex-start;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .user-message {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
             border-bottom-right-radius: 5px;
             align-self: flex-end;
+            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.3);
         }
         
         .message-header {
@@ -171,18 +146,20 @@
         }
         
         .bot-avatar {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-            color: white;
+            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
         }
         
         .user-avatar {
-            background: linear-gradient(135deg, #ea4335 0%, #fbbc05 100%);
-            color: white;
+            background: linear-gradient(135deg, #f72585 0%, #7209b7 100%);
         }
         
         .sender-name {
             font-weight: 600;
             font-size: 14px;
+        }
+        
+        .message-content {
+            font-size: 15px;
         }
         
         .typing-indicator {
@@ -203,7 +180,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background-color: #4285f4;
+            background-color: #4cc9f0;
             animation: typingAnimation 1.4s infinite ease-in-out;
         }
         
@@ -216,64 +193,54 @@
             30% { transform: translateY(-5px); }
         }
         
-        .chat-input-container {
-            padding: 20px;
-            background-color: #1a1a2e;
-            border-radius: 15px;
-            display: flex;
-            gap: 15px;
-            align-items: flex-end;
+        .code-block {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 10px 0;
             border: 1px solid #2d3746;
         }
         
-        .chat-input-wrapper {
-            flex: 1;
+        .code-header {
+            background-color: #2d2d2d;
+            padding: 8px 15px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #a0a0a0;
+            border-bottom: 1px solid #3d3d3d;
         }
         
-        .chat-input {
-            flex: 1;
-            padding: 15px 20px;
-            border-radius: 30px;
-            border: 1px solid #2d3746;
-            background-color: #0f3460;
-            color: #e6e6e6;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.3s ease;
+        .code-content {
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
         }
         
-        .chat-input:focus {
-            border-color: #4285f4;
+        .code-content pre {
+            margin: 0;
+            white-space: pre-wrap;
         }
         
-        .send-button {
-            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
-            color: white;
+        .copy-btn {
+            background: transparent;
             border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            color: #a0a0a0;
             cursor: pointer;
             display: flex;
-            justify-content: center;
             align-items: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
+            gap: 5px;
+            transition: color 0.3s;
         }
         
-        .send-button:hover {
-            transform: scale(1.05);
+        .copy-btn:hover {
+            color: #4cc9f0;
         }
         
-        .send-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
-        .welcome-message {
+        .welcome-section {
             text-align: center;
             padding: 30px 20px;
             background: rgba(26, 26, 46, 0.5);
@@ -284,14 +251,14 @@
         .welcome-icon {
             font-size: 48px;
             margin-bottom: 15px;
-            color: #4285f4;
+            color: #4cc9f0;
         }
         
         .welcome-text {
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 10px;
-            background: linear-gradient(90deg, #4285f4, #34a853);
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -322,17 +289,52 @@
         }
         
         .feature i {
-            color: #4285f4;
+            color: #4cc9f0;
         }
         
-        .error-message {
-            background: rgba(234, 67, 53, 0.1);
-            border: 1px solid #ea4335;
-            color: #ea4335;
-            padding: 12px 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            display: none;
+        .chat-input-container {
+            padding: 20px;
+            background-color: #1a1a2e;
+            border-top: 1px solid #2d3746;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: 1px solid #2d3746;
+            background-color: #0f3460;
+            color: #e6e6e6;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input:focus {
+            border-color: #4cc9f0;
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+        }
+        
+        .send-button {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .send-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
         }
         
         /* Scrollbar styling */
@@ -345,14 +347,19 @@
         }
         
         ::-webkit-scrollbar-thumb {
-            background: #4285f4;
+            background: #4cc9f0;
             border-radius: 4px;
         }
         
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4361ee;
+        }
+        
+        /* Responsive design */
         @media (max-width: 768px) {
             .chat-container {
-                padding: 10px;
-                height: calc(100vh - 150px);
+                height: 90vh;
+                border-radius: 15px;
             }
             
             .message {
@@ -360,6 +367,10 @@
             }
             
             .logo-text {
+                font-size: 20px;
+            }
+            
+            .welcome-text {
                 font-size: 24px;
             }
             
@@ -371,53 +382,78 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <div class="logo">
-            <div class="logo-icon">G</div>
-            <div class="logo-text">Gemini AI Chat</div>
-        </div>
-        <div class="subtitle">Powered by Google Gemini 2.0 API</div>
-    </div>
-
-    <div class="api-key-section">
-        <input type="password" class="api-key-input" id="apiKeyInput" placeholder="Enter your Gemini API key...">
-        <button class="save-key-btn" id="saveKeyBtn">
-            <i class="fas fa-key"></i> Save API Key
-        </button>
-        <div class="error-message" id="apiKeyError"></div>
-    </div>
-
     <div class="chat-container">
-        <div class="chat-messages" id="chatMessages">
-            <div class="welcome-message">
+        <div class="chat-header">
+            <div class="logo">
+                <div class="logo-icon">DS</div>
+                <div class="logo-text">DeepSeek</div>
+            </div>
+            <button class="search-toggle">
+                <i class="fas fa-search"></i>
+                DeepThink Search
+            </button>
+        </div>
+        
+        <div class="chat-messages">
+            <div class="welcome-section">
                 <div class="welcome-icon">
                     <i class="fas fa-robot"></i>
                 </div>
-                <div class="welcome-text">Welcome to Gemini AI Chat</div>
-                <div class="welcome-subtext">Enter your Gemini API key above to start chatting</div>
+                <div class="welcome-text">Hi, I'm DeepSeek</div>
+                <div class="welcome-subtext">How can I help you today?</div>
                 
                 <div class="features">
                     <div class="feature">
-                        <i class="fas fa-bolt"></i>
-                        Gemini 2.0 Powered
+                        <i class="fas fa-lightbulb"></i>
+                        Creative ideas
                     </div>
                     <div class="feature">
-                        <i class="fas fa-shield-alt"></i>
-                        Secure API Key Storage
+                        <i class="fas fa-code"></i>
+                        Code generation
                     </div>
                     <div class="feature">
-                        <i class="fas fa-mobile-alt"></i>
-                        Responsive Design
+                        <i class="fas fa-question-circle"></i>
+                        Answer questions
                     </div>
                     <div class="feature">
-                        <i class="fas fa-cloud"></i>
-                        Netlify Hosted
+                        <i class="fas fa-pen-fancy"></i>
+                        Content writing
                     </div>
                 </div>
             </div>
             
+            <div class="message bot-message">
+                <div class="message-header">
+                    <div class="avatar bot-avatar">AI</div>
+                    <div class="sender-name">DeepSeek</div>
+                </div>
+                <div class="message-content">
+                    Hi! I'm DeepSeek, your AI assistant. I'm here to help you with a variety of tasks including answering questions, generating content, coding assistance, and much more. What would you like to explore today?
+                </div>
+            </div>
+            
+            <div class="message user-message">
+                <div class="message-header">
+                    <div class="avatar user-avatar">You</div>
+                    <div class="sender-name">You</div>
+                </div>
+                <div class="message-content">
+                    I need help creating a modern chat interface for my application.
+                </div>
+            </div>
+            
+            <div class="message bot-message">
+                <div class="message-header">
+                    <div class="avatar bot-avatar">AI</div>
+                    <div class="sender-name">DeepSeek</div>
+                </div>
+                <div class="message-content">
+                    I'd be happy to help you create a modern chat interface! I can provide you with HTML, CSS, and JavaScript code for a sleek and responsive design. Would you like me to generate a complete implementation or focus on specific aspects of the interface?
+                </div>
+            </div>
+            
             <div class="typing-indicator" id="typingIndicator" style="display: none;">
-                <span>Gemini is typing</span>
+                <span>DeepSeek is typing</span>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -427,34 +463,30 @@
         </div>
         
         <div class="chat-input-container">
-            <div class="chat-input-wrapper">
-                <input type="text" class="chat-input" placeholder="Type your message here..." id="chatInput" disabled>
-            </div>
-            <button class="send-button" id="sendButton" disabled>
+            <input type="text" class="chat-input" placeholder="Message DeepSeek" id="chatInput">
+            <button class="send-button" id="sendButton">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
 
     <script>
+        // Initialize highlight.js for code syntax highlighting
+        hljs.highlightAll();
+        
         // DOM elements
-        const chatMessages = document.getElementById('chatMessages');
+        const chatMessages = document.querySelector('.chat-messages');
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
         const typingIndicator = document.getElementById('typingIndicator');
-        const apiKeyInput = document.getElementById('apiKeyInput');
-        const saveKeyBtn = document.getElementById('saveKeyBtn');
-        const apiKeyError = document.getElementById('apiKeyError');
-
-        let geminiApiKey = '';
-
+        
         // Function to add a new message
         function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
             messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
             
-            const sender = isUser ? 'You' : 'Gemini';
+            const sender = isUser ? 'You' : 'DeepSeek';
             const avatarClass = isUser ? 'user-avatar' : 'bot-avatar';
             const avatarText = isUser ? 'You' : 'AI';
             
@@ -463,52 +495,15 @@
                     <div class="avatar ${avatarClass}">${avatarText}</div>
                     <div class="sender-name">${sender}</div>
                 </div>
-                <div class="message-content">
-                    ${content}
-                </div>
+                <div class="message-content">${content}</div>
             `;
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-
-        // Function to show error message
-        function showError(message) {
-            apiKeyError.textContent = message;
-            apiKeyError.style.display = 'block';
-            setTimeout(() => {
-                apiKeyError.style.display = 'none';
-            }, 5000);
-        }
-
-        // Function to call Gemini API via Netlify function
-        async function callGeminiAPI(message) {
-            try {
-                const response = await fetch('/.netlify/functions/gemini', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        message: message,
-                        apiKey: geminiApiKey
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                return data.response;
-            } catch (error) {
-                console.error('Error calling Gemini API:', error);
-                throw new Error('Failed to get response from Gemini API. Please check your API key and try again.');
-            }
-        }
-
+        
         // Function to simulate typing effect
-        function typeMessage(message, callback) {
+        function typeMessage(message, isCode = false, callback) {
             // Show typing indicator
             typingIndicator.style.display = 'flex';
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -520,27 +515,59 @@
             messageDiv.innerHTML = `
                 <div class="message-header">
                     <div class="avatar bot-avatar">AI</div>
-                    <div class="sender-name">Gemini</div>
+                    <div class="sender-name">DeepSeek</div>
                 </div>
-                <div class="message-content"></div>
+                <div class="message-content">
+                    ${isCode ? '<div class="code-block"><div class="code-header">JavaScript <button class="copy-btn"><i class="far fa-copy"></i> Copy</button></div><div class="code-content"><pre><code class="language-javascript"></code></pre></div></div>' : ''}
+                    <div class="text-content" ${isCode ? 'style="display:none;"' : ''}></div>
+                </div>
             `;
             
             chatMessages.appendChild(messageDiv);
             
-            const textContainer = messageDiv.querySelector('.message-content');
+            const textContainer = isCode 
+                ? messageDiv.querySelector('.text-content')
+                : messageDiv.querySelector('.message-content');
+                
+            const codeContainer = isCode 
+                ? messageDiv.querySelector('code')
+                : null;
             
             let index = 0;
-            const typingSpeed = 30;
+            const typingSpeed = isCode ? 10 : 30; // Code types faster
             
             function typeCharacter() {
                 if (index < message.length) {
-                    textContainer.textContent += message.charAt(index);
+                    const char = message.charAt(index);
+                    
+                    if (isCode) {
+                        codeContainer.textContent += char;
+                        // Re-highlight code as we type
+                        hljs.highlightElement(codeContainer);
+                    } else {
+                        textContainer.textContent += char;
+                    }
+                    
                     index++;
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                     setTimeout(typeCharacter, typingSpeed);
                 } else {
                     // Hide typing indicator when done
                     typingIndicator.style.display = 'none';
+                    
+                    // Add copy functionality to code blocks
+                    if (isCode) {
+                        const copyBtn = messageDiv.querySelector('.copy-btn');
+                        copyBtn.addEventListener('click', () => {
+                            navigator.clipboard.writeText(message).then(() => {
+                                const originalText = copyBtn.innerHTML;
+                                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                                setTimeout(() => {
+                                    copyBtn.innerHTML = originalText;
+                                }, 2000);
+                            });
+                        });
+                    }
                     
                     // Execute callback if provided
                     if (callback) callback();
@@ -550,119 +577,111 @@
             // Start typing after a short delay
             setTimeout(typeCharacter, 500);
         }
-
-        // Function to handle sending messages
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            if (!message || !geminiApiKey) return;
-
-            // Add user message
-            addMessage(message, true);
-            chatInput.value = '';
-            chatInput.disabled = true;
-            sendButton.disabled = true;
-
-            // Show typing indicator
+        
+        // Function to simulate bot response with typing effect
+        function simulateBotResponse(userMessage) {
+            // Show typing indicator immediately
             typingIndicator.style.display = 'flex';
             chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            try {
-                // Call Gemini API
-                const response = await callGeminiAPI(message);
+            
+            // Hide typing indicator after a random delay (simulating thinking)
+            setTimeout(() => {
+                // Determine response type based on user message
+                const lowerMessage = userMessage.toLowerCase();
                 
-                // Hide typing indicator and show response
-                typingIndicator.style.display = 'none';
-                typeMessage(response);
-                
-            } catch (error) {
-                // Hide typing indicator and show error
-                typingIndicator.style.display = 'none';
-                addMessage(`Error: ${error.message}`, false);
-                showError(error.message);
-            } finally {
-                // Re-enable input
-                chatInput.disabled = false;
-                sendButton.disabled = false;
-                chatInput.focus();
+                if (lowerMessage.includes('code') || lowerMessage.includes('javascript') || lowerMessage.includes('html') || lowerMessage.includes('css')) {
+                    // Code response
+                    const codeExample = `// Example: Modern Chat Interface
+function createChatInterface() {
+    const chatContainer = document.createElement('div');
+    chatContainer.className = 'chat-container';
+    
+    // Add messages with typing effect
+    function typeMessage(text, element, speed = 30) {
+        let index = 0;
+        function type() {
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                index++;
+                setTimeout(type, speed);
             }
         }
+        type();
+    }
+    
+    return chatContainer;
+}
 
-        // Event Listeners
+// Initialize the chat
+const chat = createChatInterface();
+document.body.appendChild(chat);`;
+                    
+                    typeMessage(codeExample, true);
+                } else {
+                    // Regular text response
+                    const responses = [
+                        "I understand your request. Let me help you with that. I can provide detailed information, generate code, or assist with any specific questions you might have about your project.",
+                        "That's an interesting question. Based on my knowledge, I can offer several approaches to solve this problem. Would you like me to elaborate on any specific aspect?",
+                        "Thanks for your message! I'm processing your request and will provide a comprehensive response. Is there anything specific you'd like me to focus on?",
+                        "I've analyzed your query and can provide multiple solutions. Let me know if you'd like me to proceed with the most common approach or if you have specific requirements."
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    typeMessage(randomResponse);
+                }
+            }, 1000);
+        }
         
-        // Save API key
-        saveKeyBtn.addEventListener('click', () => {
-            const apiKey = apiKeyInput.value.trim();
-            if (!apiKey) {
-                showError('Please enter a valid API key');
-                return;
-            }
-
-            if (apiKey.length < 20) {
-                showError('Please enter a valid Gemini API key');
-                return;
-            }
-
-            geminiApiKey = apiKey;
-            apiKeyInput.type = 'password';
-            apiKeyInput.disabled = true;
-            saveKeyBtn.disabled = true;
-            saveKeyBtn.innerHTML = '<i class="fas fa-check"></i> API Key Saved';
-            
-            // Enable chat
-            chatInput.disabled = false;
-            sendButton.disabled = false;
-            chatInput.placeholder = "Ask Gemini anything...";
-            chatInput.focus();
-
-            // Add welcome message
-            addMessage("Hello! I'm Gemini AI. How can I help you today?", false);
-        });
-
         // Send message on button click
-        sendButton.addEventListener('click', sendMessage);
+        sendButton.addEventListener('click', () => {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage(message, true);
+                chatInput.value = '';
+                simulateBotResponse(message);
+            }
+        });
         
         // Send message on Enter key
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                sendMessage();
+                sendButton.click();
             }
         });
+        
+        // Focus on input when page loads
+        chatInput.focus();
+        
+        // Demo: Simulate initial typing message after page loads
+        setTimeout(() => {
+            const demoMessage = "I see you're interested in chat interfaces. I can help you create one with real-time typing effects and code display capabilities. Let me show you an example:";
+            typeMessage(demoMessage, false, () => {
+                // After the first message is typed, show a code example
+                setTimeout(() => {
+                    const codeExample = `// Real-time typing effect implementation
+function typeText(element, text, speed = 30) {
+    let i = 0;
+    element.innerHTML = '';
+    
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+    
+    type();
+}
 
-        // Show/hide API key
-        apiKeyInput.addEventListener('focus', () => {
-            if (apiKeyInput.type === 'password') {
-                apiKeyInput.type = 'text';
-            }
-        });
-
-        apiKeyInput.addEventListener('blur', () => {
-            if (apiKeyInput.type === 'text' && geminiApiKey) {
-                apiKeyInput.type = 'password';
-            }
-        });
-
-        // Load saved API key from localStorage (optional)
-        window.addEventListener('load', () => {
-            const savedApiKey = localStorage.getItem('geminiApiKey');
-            if (savedApiKey) {
-                geminiApiKey = savedApiKey;
-                apiKeyInput.value = '•'.repeat(20);
-                apiKeyInput.disabled = true;
-                saveKeyBtn.disabled = true;
-                saveKeyBtn.innerHTML = '<i class="fas fa-check"></i> API Key Saved';
-                chatInput.disabled = false;
-                sendButton.disabled = false;
-                chatInput.placeholder = "Ask Gemini anything...";
-                addMessage("Welcome back! How can I help you today?", false);
-            }
-        });
-
-        // Save API key to localStorage when entered
-        saveKeyBtn.addEventListener('click', () => {
-            if (geminiApiKey) {
-                localStorage.setItem('geminiApiKey', geminiApiKey);
-            }
-        });
+// Usage
+const messageElement = document.getElementById('message');
+typeText(messageElement, 'Hello! This text is being typed in real-time.');`;
+                    
+                    typeMessage(codeExample, true);
+                }, 500);
+            });
+        }, 2000);
     </script>
 </body>
 </html>
