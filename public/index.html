@@ -424,6 +424,12 @@
             box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
         }
         
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
         .uploaded-files {
             display: flex;
             flex-wrap: wrap;
@@ -645,7 +651,7 @@
             </div>
         </div>
         
-        <div class="chat-messages">
+        <div class="chat-messages" id="chatMessages">
             <div class="welcome-section">
                 <div class="welcome-icon">
                     <i class="fas fa-robot"></i>
@@ -769,7 +775,7 @@
         hljs.highlightAll();
         
         // DOM elements
-        const chatMessages = document.querySelector('.chat-messages');
+        const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
         const typingIndicator = document.getElementById('typingIndicator');
@@ -787,6 +793,11 @@
         
         // Store uploaded files
         let currentFiles = [];
+        
+        // Enable/disable send button based on input
+        function updateSendButton() {
+            sendButton.disabled = !chatInput.value.trim() && currentFiles.length === 0;
+        }
         
         // Function to add a new message
         function addMessage(content, isUser = false, files = []) {
@@ -1067,8 +1078,11 @@ function handleFileUpload(files) {
                 fileElement.querySelector('.remove-file').addEventListener('click', function() {
                     currentFiles.splice(parseInt(this.getAttribute('data-index')), 1);
                     displayUploadedFiles(currentFiles);
+                    updateSendButton();
                 });
             });
+            
+            updateSendButton();
         }
         
         // Function to read file as text or data URL
@@ -1119,6 +1133,7 @@ function handleFileUpload(files) {
                 simulateBotResponse(message, currentFiles);
                 currentFiles = [];
                 displayUploadedFiles(currentFiles);
+                updateSendButton();
             }
         });
         
@@ -1128,6 +1143,9 @@ function handleFileUpload(files) {
                 sendButton.click();
             }
         });
+        
+        // Update send button state when input changes
+        chatInput.addEventListener('input', updateSendButton);
         
         // Open upload modal
         uploadBtn.addEventListener('click', () => {
@@ -1188,6 +1206,9 @@ function handleFileUpload(files) {
                 alert('Error reading files: ' + error.message);
             }
         });
+        
+        // Initialize send button state
+        updateSendButton();
         
         // Focus on input when page loads
         chatInput.focus();
