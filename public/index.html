@@ -1119,3 +1119,84 @@ function handleFileUpload(files) {
                 simulateBotResponse(message, currentFiles);
                 currentFiles = [];
                 displayUploadedFiles(currentFiles);
+            }
+        });
+        
+        // Send message on Enter key
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+        
+        // Open upload modal
+        uploadBtn.addEventListener('click', () => {
+            uploadModal.style.display = 'flex';
+        });
+        
+        attachFileBtn.addEventListener('click', () => {
+            uploadModal.style.display = 'flex';
+        });
+        
+        imageUploadBtn.addEventListener('click', () => {
+            uploadModal.style.display = 'flex';
+            // Could add filtering for images only here
+        });
+        
+        // Close modal
+        closeModal.addEventListener('click', () => {
+            uploadModal.style.display = 'none';
+        });
+        
+        cancelUpload.addEventListener('click', () => {
+            uploadModal.style.display = 'none';
+        });
+        
+        // Upload area click
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        // Handle file selection
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        // Confirm upload
+        confirmUpload.addEventListener('click', async () => {
+            const files = fileInput.files;
+            if (files.length === 0) {
+                alert('Please select at least one file to upload.');
+                return;
+            }
+            
+            // Read all files
+            const filePromises = [];
+            for (let i = 0; i < files.length; i++) {
+                filePromises.push(readFile(files[i]));
+            }
+            
+            try {
+                const fileData = await Promise.all(filePromises);
+                currentFiles = [...currentFiles, ...fileData];
+                displayUploadedFiles(currentFiles);
+                uploadModal.style.display = 'none';
+                fileInput.value = ''; // Reset file input
+                selectedFiles.innerHTML = ''; // Clear selected files display
+                
+                // Auto-focus on chat input
+                chatInput.focus();
+            } catch (error) {
+                alert('Error reading files: ' + error.message);
+            }
+        });
+        
+        // Focus on input when page loads
+        chatInput.focus();
+        
+        // Demo: Simulate initial typing message after page loads
+        setTimeout(() => {
+            const demoMessage = "I see you're interested in file uploads. I can now process documents, images, and other file types. Try uploading a file to see how it works!";
+            typeMessage(demoMessage);
+        }, 2000);
+    </script>
+</body>
+</html>
