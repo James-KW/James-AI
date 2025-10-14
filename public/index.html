@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeepSeek Chat Interface</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -158,6 +160,84 @@
         
         .message-content {
             font-size: 15px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 15px;
+            color: #a0a0a0;
+            font-style: italic;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #4cc9f0;
+            animation: typingAnimation 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
+        }
+        
+        .code-block {
+            background-color: #1e1e1e;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 10px 0;
+            border: 1px solid #2d3746;
+        }
+        
+        .code-header {
+            background-color: #2d2d2d;
+            padding: 8px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #a0a0a0;
+            border-bottom: 1px solid #3d3d3d;
+        }
+        
+        .code-content {
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .code-content pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+        
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: #a0a0a0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s;
+        }
+        
+        .copy-btn:hover {
+            color: #4cc9f0;
         }
         
         .welcome-section {
@@ -371,21 +451,34 @@
                     I'd be happy to help you create a modern chat interface! I can provide you with HTML, CSS, and JavaScript code for a sleek and responsive design. Would you like me to generate a complete implementation or focus on specific aspects of the interface?
                 </div>
             </div>
+            
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <span>DeepSeek is typing</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
         </div>
         
         <div class="chat-input-container">
-            <input type="text" class="chat-input" placeholder="Message DeepSeek">
-            <button class="send-button">
+            <input type="text" class="chat-input" placeholder="Message DeepSeek" id="chatInput">
+            <button class="send-button" id="sendButton">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
 
     <script>
-        // Simple functionality for the chat
+        // Initialize highlight.js for code syntax highlighting
+        hljs.highlightAll();
+        
+        // DOM elements
         const chatMessages = document.querySelector('.chat-messages');
-        const chatInput = document.querySelector('.chat-input');
-        const sendButton = document.querySelector('.send-button');
+        const chatInput = document.getElementById('chatInput');
+        const sendButton = document.getElementById('sendButton');
+        const typingIndicator = document.getElementById('typingIndicator');
         
         // Function to add a new message
         function addMessage(content, isUser = false) {
@@ -409,17 +502,143 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
+        // Function to simulate typing effect
+        function typeMessage(message, isCode = false, callback) {
+            // Show typing indicator
+            typingIndicator.style.display = 'flex';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Create message container
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'bot-message');
+            
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <div class="avatar bot-avatar">AI</div>
+                    <div class="sender-name">DeepSeek</div>
+                </div>
+                <div class="message-content">
+                    ${isCode ? '<div class="code-block"><div class="code-header">JavaScript <button class="copy-btn"><i class="far fa-copy"></i> Copy</button></div><div class="code-content"><pre><code class="language-javascript"></code></pre></div></div>' : ''}
+                    <div class="text-content" ${isCode ? 'style="display:none;"' : ''}></div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            
+            const textContainer = isCode 
+                ? messageDiv.querySelector('.text-content')
+                : messageDiv.querySelector('.message-content');
+                
+            const codeContainer = isCode 
+                ? messageDiv.querySelector('code')
+                : null;
+            
+            let index = 0;
+            const typingSpeed = isCode ? 10 : 30; // Code types faster
+            
+            function typeCharacter() {
+                if (index < message.length) {
+                    const char = message.charAt(index);
+                    
+                    if (isCode) {
+                        codeContainer.textContent += char;
+                        // Re-highlight code as we type
+                        hljs.highlightElement(codeContainer);
+                    } else {
+                        textContainer.textContent += char;
+                    }
+                    
+                    index++;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                    setTimeout(typeCharacter, typingSpeed);
+                } else {
+                    // Hide typing indicator when done
+                    typingIndicator.style.display = 'none';
+                    
+                    // Add copy functionality to code blocks
+                    if (isCode) {
+                        const copyBtn = messageDiv.querySelector('.copy-btn');
+                        copyBtn.addEventListener('click', () => {
+                            navigator.clipboard.writeText(message).then(() => {
+                                const originalText = copyBtn.innerHTML;
+                                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                                setTimeout(() => {
+                                    copyBtn.innerHTML = originalText;
+                                }, 2000);
+                            });
+                        });
+                    }
+                    
+                    // Execute callback if provided
+                    if (callback) callback();
+                }
+            }
+            
+            // Start typing after a short delay
+            setTimeout(typeCharacter, 500);
+        }
+        
+        // Function to simulate bot response with typing effect
+        function simulateBotResponse(userMessage) {
+            // Show typing indicator immediately
+            typingIndicator.style.display = 'flex';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Hide typing indicator after a random delay (simulating thinking)
+            setTimeout(() => {
+                // Determine response type based on user message
+                const lowerMessage = userMessage.toLowerCase();
+                
+                if (lowerMessage.includes('code') || lowerMessage.includes('javascript') || lowerMessage.includes('html') || lowerMessage.includes('css')) {
+                    // Code response
+                    const codeExample = `// Example: Modern Chat Interface
+function createChatInterface() {
+    const chatContainer = document.createElement('div');
+    chatContainer.className = 'chat-container';
+    
+    // Add messages with typing effect
+    function typeMessage(text, element, speed = 30) {
+        let index = 0;
+        function type() {
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                index++;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    }
+    
+    return chatContainer;
+}
+
+// Initialize the chat
+const chat = createChatInterface();
+document.body.appendChild(chat);`;
+                    
+                    typeMessage(codeExample, true);
+                } else {
+                    // Regular text response
+                    const responses = [
+                        "I understand your request. Let me help you with that. I can provide detailed information, generate code, or assist with any specific questions you might have about your project.",
+                        "That's an interesting question. Based on my knowledge, I can offer several approaches to solve this problem. Would you like me to elaborate on any specific aspect?",
+                        "Thanks for your message! I'm processing your request and will provide a comprehensive response. Is there anything specific you'd like me to focus on?",
+                        "I've analyzed your query and can provide multiple solutions. Let me know if you'd like me to proceed with the most common approach or if you have specific requirements."
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    typeMessage(randomResponse);
+                }
+            }, 1000);
+        }
+        
         // Send message on button click
         sendButton.addEventListener('click', () => {
             const message = chatInput.value.trim();
             if (message) {
                 addMessage(message, true);
                 chatInput.value = '';
-                
-                // Simulate bot response after a short delay
-                setTimeout(() => {
-                    addMessage("Thanks for your message! I'm processing your request and will respond shortly.");
-                }, 1000);
+                simulateBotResponse(message);
             }
         });
         
@@ -432,6 +651,37 @@
         
         // Focus on input when page loads
         chatInput.focus();
+        
+        // Demo: Simulate initial typing message after page loads
+        setTimeout(() => {
+            const demoMessage = "I see you're interested in chat interfaces. I can help you create one with real-time typing effects and code display capabilities. Let me show you an example:";
+            typeMessage(demoMessage, false, () => {
+                // After the first message is typed, show a code example
+                setTimeout(() => {
+                    const codeExample = `// Real-time typing effect implementation
+function typeText(element, text, speed = 30) {
+    let i = 0;
+    element.innerHTML = '';
+    
+    function type() {
+        if (i < text.length) {
+            element.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+    
+    type();
+}
+
+// Usage
+const messageElement = document.getElementById('message');
+typeText(messageElement, 'Hello! This text is being typed in real-time.');`;
+                    
+                    typeMessage(codeExample, true);
+                }, 500);
+            });
+        }, 2000);
     </script>
 </body>
 </html>
