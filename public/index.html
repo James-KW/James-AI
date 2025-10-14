@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSeek Chat Interface</title>
+    <title>Gemini AI Chat</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -18,91 +16,115 @@
         body {
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #e6e6e6;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .chat-container {
-            width: 100%;
-            max-width: 900px;
-            height: 80vh;
-            background-color: #0f3460;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             display: flex;
             flex-direction: column;
         }
         
-        .chat-header {
+        .header {
             background-color: #1a1a2e;
             padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
             border-bottom: 1px solid #2d3746;
         }
         
         .logo {
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
         }
         
         .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 20px;
+            color: white;
         }
         
         .logo-text {
-            font-size: 24px;
+            font-size: 32px;
             font-weight: 700;
-            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            background: linear-gradient(90deg, #4285f4, #34a853);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
         }
         
-        .header-buttons {
-            display: flex;
-            gap: 10px;
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 16px;
+            margin-top: 5px;
         }
         
-        .header-btn {
-            background: transparent;
-            border: 1px solid #4cc9f0;
-            color: #4cc9f0;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
+        .api-key-section {
+            background: rgba(26, 26, 46, 0.8);
+            padding: 15px;
+            margin: 20px auto;
+            border-radius: 10px;
+            max-width: 600px;
+            border: 1px solid #2d3746;
+        }
+        
+        .api-key-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid #2d3746;
+            background-color: #0f3460;
+            color: #e6e6e6;
             font-size: 14px;
+            margin-bottom: 10px;
         }
         
-        .header-btn:hover {
-            background-color: rgba(76, 201, 240, 0.1);
+        .api-key-input:focus {
+            outline: none;
+            border-color: #4285f4;
+        }
+        
+        .save-key-btn {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .save-key-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .chat-container {
+            flex: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
         }
         
         .chat-messages {
             flex: 1;
-            padding: 20px;
             overflow-y: auto;
+            padding: 20px;
+            background-color: #0f3460;
+            border-radius: 15px;
+            margin-bottom: 20px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            border: 1px solid #2d3746;
         }
         
         .message {
@@ -110,7 +132,6 @@
             padding: 15px 20px;
             border-radius: 18px;
             line-height: 1.5;
-            position: relative;
             animation: fadeIn 0.3s ease;
         }
         
@@ -123,14 +144,12 @@
             background-color: #1a1a2e;
             border-bottom-left-radius: 5px;
             align-self: flex-start;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .user-message {
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
             border-bottom-right-radius: 5px;
             align-self: flex-end;
-            box-shadow: 0 4px 6px rgba(67, 97, 238, 0.3);
         }
         
         .message-header {
@@ -152,68 +171,18 @@
         }
         
         .bot-avatar {
-            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
         }
         
         .user-avatar {
-            background: linear-gradient(135deg, #f72585 0%, #7209b7 100%);
+            background: linear-gradient(135deg, #ea4335 0%, #fbbc05 100%);
+            color: white;
         }
         
         .sender-name {
             font-weight: 600;
             font-size: 14px;
-        }
-        
-        .message-content {
-            font-size: 15px;
-        }
-        
-        .file-attachment {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 12px;
-            margin-top: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .file-icon {
-            font-size: 20px;
-            color: #4cc9f0;
-        }
-        
-        .file-info {
-            flex: 1;
-        }
-        
-        .file-name {
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .file-size {
-            font-size: 12px;
-            color: #a0a0a0;
-        }
-        
-        .file-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .file-action-btn {
-            background: transparent;
-            border: none;
-            color: #a0a0a0;
-            cursor: pointer;
-            font-size: 14px;
-            transition: color 0.3s;
-        }
-        
-        .file-action-btn:hover {
-            color: #4cc9f0;
         }
         
         .typing-indicator {
@@ -234,7 +203,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background-color: #4cc9f0;
+            background-color: #4285f4;
             animation: typingAnimation 1.4s infinite ease-in-out;
         }
         
@@ -247,54 +216,64 @@
             30% { transform: translateY(-5px); }
         }
         
-        .code-block {
-            background-color: #1e1e1e;
-            border-radius: 8px;
-            overflow: hidden;
-            margin: 10px 0;
+        .chat-input-container {
+            padding: 20px;
+            background-color: #1a1a2e;
+            border-radius: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
             border: 1px solid #2d3746;
         }
         
-        .code-header {
-            background-color: #2d2d2d;
-            padding: 8px 15px;
+        .chat-input-wrapper {
+            flex: 1;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: #a0a0a0;
-            border-bottom: 1px solid #3d3d3d;
+            flex-direction: column;
         }
         
-        .code-content {
-            padding: 15px;
-            overflow-x: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: 1px solid #2d3746;
+            background-color: #0f3460;
+            color: #e6e6e6;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.3s ease;
         }
         
-        .code-content pre {
-            margin: 0;
-            white-space: pre-wrap;
+        .chat-input:focus {
+            border-color: #4285f4;
         }
         
-        .copy-btn {
-            background: transparent;
+        .send-button {
+            background: linear-gradient(135deg, #4285f4 0%, #34a853 100%);
+            color: white;
             border: none;
-            color: #a0a0a0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             cursor: pointer;
             display: flex;
+            justify-content: center;
             align-items: center;
-            gap: 5px;
-            transition: color 0.3s;
+            font-size: 18px;
+            transition: all 0.3s ease;
         }
         
-        .copy-btn:hover {
-            color: #4cc9f0;
+        .send-button:hover {
+            transform: scale(1.05);
         }
         
-        .welcome-section {
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .welcome-message {
             text-align: center;
             padding: 30px 20px;
             background: rgba(26, 26, 46, 0.5);
@@ -305,14 +284,14 @@
         .welcome-icon {
             font-size: 48px;
             margin-bottom: 15px;
-            color: #4cc9f0;
+            color: #4285f4;
         }
         
         .welcome-text {
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 10px;
-            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            background: linear-gradient(90deg, #4285f4, #34a853);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -343,125 +322,17 @@
         }
         
         .feature i {
-            color: #4cc9f0;
+            color: #4285f4;
         }
         
-        .chat-input-container {
-            padding: 20px;
-            background-color: #1a1a2e;
-            border-top: 1px solid #2d3746;
-            display: flex;
-            gap: 15px;
-        }
-        
-        .input-actions {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .action-btn {
-            background: transparent;
-            border: 1px solid #2d3746;
-            color: #a0a0a0;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        
-        .action-btn:hover {
-            background-color: rgba(76, 201, 240, 0.1);
-            color: #4cc9f0;
-            border-color: #4cc9f0;
-        }
-        
-        .chat-input-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .chat-input {
-            flex: 1;
-            padding: 15px 20px;
-            border-radius: 30px;
-            border: 1px solid #2d3746;
-            background-color: #0f3460;
-            color: #e6e6e6;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        
-        .chat-input:focus {
-            border-color: #4cc9f0;
-            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
-        }
-        
-        .send-button {
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-            color: white;
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 18px;
-            transition: all 0.3s ease;
-            align-self: flex-end;
-        }
-        
-        .send-button:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
-        }
-        
-        .send-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-        
-        .uploaded-files {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .uploaded-file {
-            background: rgba(26, 26, 46, 0.7);
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: 1px solid #2d3746;
-        }
-        
-        .uploaded-file i {
-            color: #4cc9f0;
-        }
-        
-        .remove-file {
-            background: none;
-            border: none;
-            color: #a0a0a0;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        
-        .remove-file:hover {
-            color: #f72585;
+        .error-message {
+            background: rgba(234, 67, 53, 0.1);
+            border: 1px solid #ea4335;
+            color: #ea4335;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
         }
         
         /* Scrollbar styling */
@@ -474,133 +345,14 @@
         }
         
         ::-webkit-scrollbar-thumb {
-            background: #4cc9f0;
+            background: #4285f4;
             border-radius: 4px;
         }
         
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4361ee;
-        }
-        
-        /* Modal styles */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background-color: #1a1a2e;
-            border-radius: 15px;
-            padding: 25px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border: 1px solid #2d3746;
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .modal-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #4cc9f0;
-        }
-        
-        .close-modal {
-            background: none;
-            border: none;
-            color: #a0a0a0;
-            font-size: 24px;
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-        
-        .close-modal:hover {
-            color: #f72585;
-        }
-        
-        .upload-area {
-            border: 2px dashed #4cc9f0;
-            border-radius: 10px;
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .upload-area:hover {
-            background-color: rgba(76, 201, 240, 0.1);
-        }
-        
-        .upload-icon {
-            font-size: 48px;
-            color: #4cc9f0;
-            margin-bottom: 15px;
-        }
-        
-        .upload-text {
-            margin-bottom: 10px;
-        }
-        
-        .upload-subtext {
-            color: #a0a0a0;
-            font-size: 14px;
-        }
-        
-        .file-input {
-            display: none;
-        }
-        
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .modal-btn {
-            padding: 10px 20px;
-            border-radius: 20px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .modal-btn-primary {
-            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
-            color: white;
-        }
-        
-        .modal-btn-secondary {
-            background: transparent;
-            border: 1px solid #2d3746;
-            color: #a0a0a0;
-        }
-        
-        .modal-btn:hover {
-            transform: translateY(-2px);
-        }
-        
-        /* Responsive design */
         @media (max-width: 768px) {
             .chat-container {
-                height: 90vh;
-                border-radius: 15px;
+                padding: 10px;
+                height: calc(100vh - 150px);
             }
             
             .message {
@@ -608,10 +360,6 @@
             }
             
             .logo-text {
-                font-size: 20px;
-            }
-            
-            .welcome-text {
                 font-size: 24px;
             }
             
@@ -619,98 +367,57 @@
                 flex-direction: column;
                 align-items: center;
             }
-            
-            .header-buttons {
-                flex-direction: column;
-                gap: 5px;
-            }
-            
-            .header-btn {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="logo">
-                <div class="logo-icon">DS</div>
-                <div class="logo-text">DeepSeek</div>
-            </div>
-            <div class="header-buttons">
-                <button class="header-btn" id="uploadBtn">
-                    <i class="fas fa-upload"></i>
-                    Upload Files
-                </button>
-                <button class="header-btn">
-                    <i class="fas fa-search"></i>
-                    DeepThink Search
-                </button>
-            </div>
+    <div class="header">
+        <div class="logo">
+            <div class="logo-icon">G</div>
+            <div class="logo-text">Gemini AI Chat</div>
         </div>
-        
+        <div class="subtitle">Powered by Google Gemini 2.0 API</div>
+    </div>
+
+    <div class="api-key-section">
+        <input type="password" class="api-key-input" id="apiKeyInput" placeholder="Enter your Gemini API key...">
+        <button class="save-key-btn" id="saveKeyBtn">
+            <i class="fas fa-key"></i> Save API Key
+        </button>
+        <div class="error-message" id="apiKeyError"></div>
+    </div>
+
+    <div class="chat-container">
         <div class="chat-messages" id="chatMessages">
-            <div class="welcome-section">
+            <div class="welcome-message">
                 <div class="welcome-icon">
                     <i class="fas fa-robot"></i>
                 </div>
-                <div class="welcome-text">Hi, I'm DeepSeek</div>
-                <div class="welcome-subtext">Upload documents, images, or photos and I'll help you analyze them</div>
+                <div class="welcome-text">Welcome to Gemini AI Chat</div>
+                <div class="welcome-subtext">Enter your Gemini API key above to start chatting</div>
                 
                 <div class="features">
                     <div class="feature">
-                        <i class="fas fa-file-upload"></i>
-                        Document analysis
+                        <i class="fas fa-bolt"></i>
+                        Gemini 2.0 Powered
                     </div>
                     <div class="feature">
-                        <i class="fas fa-image"></i>
-                        Image recognition
+                        <i class="fas fa-shield-alt"></i>
+                        Secure API Key Storage
                     </div>
                     <div class="feature">
-                        <i class="fas fa-code"></i>
-                        Code generation
+                        <i class="fas fa-mobile-alt"></i>
+                        Responsive Design
                     </div>
                     <div class="feature">
-                        <i class="fas fa-question-circle"></i>
-                        Answer questions
+                        <i class="fas fa-cloud"></i>
+                        Netlify Hosted
                     </div>
-                </div>
-            </div>
-            
-            <div class="message bot-message">
-                <div class="message-header">
-                    <div class="avatar bot-avatar">AI</div>
-                    <div class="sender-name">DeepSeek</div>
-                </div>
-                <div class="message-content">
-                    Hi! I'm DeepSeek, your AI assistant. I can now process uploaded files including documents, images, and photos. Just click the upload button to get started!
-                </div>
-            </div>
-            
-            <div class="message user-message">
-                <div class="message-header">
-                    <div class="avatar user-avatar">You</div>
-                    <div class="sender-name">You</div>
-                </div>
-                <div class="message-content">
-                    I need help analyzing some documents and images for my project.
-                </div>
-            </div>
-            
-            <div class="message bot-message">
-                <div class="message-header">
-                    <div class="avatar bot-avatar">AI</div>
-                    <div class="sender-name">DeepSeek</div>
-                </div>
-                <div class="message-content">
-                    I'd be happy to help you analyze documents and images! You can upload multiple files at once using the upload button. I support PDFs, Word documents, images (JPG, PNG, etc.), and more.
                 </div>
             </div>
             
             <div class="typing-indicator" id="typingIndicator" style="display: none;">
-                <span>DeepSeek is typing</span>
+                <span>Gemini is typing</span>
                 <div class="typing-dots">
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
@@ -720,114 +427,36 @@
         </div>
         
         <div class="chat-input-container">
-            <div class="input-actions">
-                <button class="action-btn" id="attachFileBtn" title="Attach file">
-                    <i class="fas fa-paperclip"></i>
-                </button>
-                <button class="action-btn" id="imageUploadBtn" title="Upload image">
-                    <i class="fas fa-image"></i>
-                </button>
-            </div>
-            
             <div class="chat-input-wrapper">
-                <input type="text" class="chat-input" placeholder="Message DeepSeek" id="chatInput">
-                <div class="uploaded-files" id="uploadedFiles">
-                    <!-- Uploaded files will appear here -->
-                </div>
+                <input type="text" class="chat-input" placeholder="Type your message here..." id="chatInput" disabled>
             </div>
-            
-            <button class="send-button" id="sendButton">
+            <button class="send-button" id="sendButton" disabled>
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
     </div>
 
-    <!-- File Upload Modal -->
-    <div class="modal" id="uploadModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">Upload Files</div>
-                <button class="close-modal" id="closeModal">&times;</button>
-            </div>
-            
-            <div class="upload-area" id="uploadArea">
-                <div class="upload-icon">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                </div>
-                <div class="upload-text">Drag & drop files here or click to browse</div>
-                <div class="upload-subtext">Supports documents, images, and more (Max: 10MB per file)</div>
-                <input type="file" class="file-input" id="fileInput" multiple>
-            </div>
-            
-            <div class="selected-files" id="selectedFiles">
-                <!-- Selected files will appear here -->
-            </div>
-            
-            <div class="modal-actions">
-                <button class="modal-btn modal-btn-secondary" id="cancelUpload">Cancel</button>
-                <button class="modal-btn modal-btn-primary" id="confirmUpload">Upload Files</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // Initialize highlight.js for code syntax highlighting
-        hljs.highlightAll();
-        
         // DOM elements
         const chatMessages = document.getElementById('chatMessages');
         const chatInput = document.getElementById('chatInput');
         const sendButton = document.getElementById('sendButton');
         const typingIndicator = document.getElementById('typingIndicator');
-        const uploadBtn = document.getElementById('uploadBtn');
-        const attachFileBtn = document.getElementById('attachFileBtn');
-        const imageUploadBtn = document.getElementById('imageUploadBtn');
-        const uploadModal = document.getElementById('uploadModal');
-        const closeModal = document.getElementById('closeModal');
-        const cancelUpload = document.getElementById('cancelUpload');
-        const confirmUpload = document.getElementById('confirmUpload');
-        const uploadArea = document.getElementById('uploadArea');
-        const fileInput = document.getElementById('fileInput');
-        const selectedFiles = document.getElementById('selectedFiles');
-        const uploadedFiles = document.getElementById('uploadedFiles');
-        
-        // Store uploaded files
-        let currentFiles = [];
-        
-        // Enable/disable send button based on input
-        function updateSendButton() {
-            sendButton.disabled = !chatInput.value.trim() && currentFiles.length === 0;
-        }
-        
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const saveKeyBtn = document.getElementById('saveKeyBtn');
+        const apiKeyError = document.getElementById('apiKeyError');
+
+        let geminiApiKey = '';
+
         // Function to add a new message
-        function addMessage(content, isUser = false, files = []) {
+        function addMessage(content, isUser = false) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message');
             messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
             
-            const sender = isUser ? 'You' : 'DeepSeek';
+            const sender = isUser ? 'You' : 'Gemini';
             const avatarClass = isUser ? 'user-avatar' : 'bot-avatar';
             const avatarText = isUser ? 'You' : 'AI';
-            
-            let fileAttachments = '';
-            if (files.length > 0) {
-                fileAttachments = files.map(file => `
-                    <div class="file-attachment">
-                        <div class="file-icon">
-                            <i class="fas fa-${getFileIcon(file.type)}"></i>
-                        </div>
-                        <div class="file-info">
-                            <div class="file-name">${file.name}</div>
-                            <div class="file-size">${formatFileSize(file.size)}</div>
-                        </div>
-                        <div class="file-actions">
-                            <button class="file-action-btn" onclick="downloadFile('${file.name}', '${file.content}')">
-                                <i class="fas fa-download"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
             
             messageDiv.innerHTML = `
                 <div class="message-header">
@@ -836,35 +465,50 @@
                 </div>
                 <div class="message-content">
                     ${content}
-                    ${fileAttachments}
                 </div>
             `;
             
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        
-        // Function to get appropriate file icon
-        function getFileIcon(fileType) {
-            if (fileType.startsWith('image/')) return 'file-image';
-            if (fileType === 'application/pdf') return 'file-pdf';
-            if (fileType.includes('document') || fileType.includes('word')) return 'file-word';
-            if (fileType.includes('sheet') || fileType.includes('excel')) return 'file-excel';
-            if (fileType.includes('presentation') || fileType.includes('powerpoint')) return 'file-powerpoint';
-            return 'file';
+
+        // Function to show error message
+        function showError(message) {
+            apiKeyError.textContent = message;
+            apiKeyError.style.display = 'block';
+            setTimeout(() => {
+                apiKeyError.style.display = 'none';
+            }, 5000);
         }
-        
-        // Function to format file size
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+
+        // Function to call Gemini API via Netlify function
+        async function callGeminiAPI(message) {
+            try {
+                const response = await fetch('/.netlify/functions/gemini', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        apiKey: geminiApiKey
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.response;
+            } catch (error) {
+                console.error('Error calling Gemini API:', error);
+                throw new Error('Failed to get response from Gemini API. Please check your API key and try again.');
+            }
         }
-        
+
         // Function to simulate typing effect
-        function typeMessage(message, isCode = false, callback) {
+        function typeMessage(message, callback) {
             // Show typing indicator
             typingIndicator.style.display = 'flex';
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -876,59 +520,27 @@
             messageDiv.innerHTML = `
                 <div class="message-header">
                     <div class="avatar bot-avatar">AI</div>
-                    <div class="sender-name">DeepSeek</div>
+                    <div class="sender-name">Gemini</div>
                 </div>
-                <div class="message-content">
-                    ${isCode ? '<div class="code-block"><div class="code-header">JavaScript <button class="copy-btn"><i class="far fa-copy"></i> Copy</button></div><div class="code-content"><pre><code class="language-javascript"></code></pre></div></div>' : ''}
-                    <div class="text-content" ${isCode ? 'style="display:none;"' : ''}></div>
-                </div>
+                <div class="message-content"></div>
             `;
             
             chatMessages.appendChild(messageDiv);
             
-            const textContainer = isCode 
-                ? messageDiv.querySelector('.text-content')
-                : messageDiv.querySelector('.message-content');
-                
-            const codeContainer = isCode 
-                ? messageDiv.querySelector('code')
-                : null;
+            const textContainer = messageDiv.querySelector('.message-content');
             
             let index = 0;
-            const typingSpeed = isCode ? 10 : 30; // Code types faster
+            const typingSpeed = 30;
             
             function typeCharacter() {
                 if (index < message.length) {
-                    const char = message.charAt(index);
-                    
-                    if (isCode) {
-                        codeContainer.textContent += char;
-                        // Re-highlight code as we type
-                        hljs.highlightElement(codeContainer);
-                    } else {
-                        textContainer.textContent += char;
-                    }
-                    
+                    textContainer.textContent += message.charAt(index);
                     index++;
                     chatMessages.scrollTop = chatMessages.scrollHeight;
                     setTimeout(typeCharacter, typingSpeed);
                 } else {
                     // Hide typing indicator when done
                     typingIndicator.style.display = 'none';
-                    
-                    // Add copy functionality to code blocks
-                    if (isCode) {
-                        const copyBtn = messageDiv.querySelector('.copy-btn');
-                        copyBtn.addEventListener('click', () => {
-                            navigator.clipboard.writeText(message).then(() => {
-                                const originalText = copyBtn.innerHTML;
-                                copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
-                                setTimeout(() => {
-                                    copyBtn.innerHTML = originalText;
-                                }, 2000);
-                            });
-                        });
-                    }
                     
                     // Execute callback if provided
                     if (callback) callback();
@@ -938,286 +550,119 @@
             // Start typing after a short delay
             setTimeout(typeCharacter, 500);
         }
-        
-        // Function to simulate bot response with typing effect
-        function simulateBotResponse(userMessage, files = []) {
-            // Show typing indicator immediately
+
+        // Function to handle sending messages
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message || !geminiApiKey) return;
+
+            // Add user message
+            addMessage(message, true);
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendButton.disabled = true;
+
+            // Show typing indicator
             typingIndicator.style.display = 'flex';
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            
-            // Hide typing indicator after a random delay (simulating thinking)
-            setTimeout(() => {
-                // Determine response type based on user message and files
-                const lowerMessage = userMessage.toLowerCase();
-                let response = "";
+
+            try {
+                // Call Gemini API
+                const response = await callGeminiAPI(message);
                 
-                if (files.length > 0) {
-                    const fileNames = files.map(f => f.name).join(', ');
-                    response = `I've received your files: ${fileNames}. I'll analyze them and provide insights shortly. `;
-                    
-                    // Add file-specific responses
-                    const hasImages = files.some(f => f.type.startsWith('image/'));
-                    const hasDocuments = files.some(f => 
-                        f.type.includes('pdf') || 
-                        f.type.includes('document') || 
-                        f.type.includes('text')
-                    );
-                    
-                    if (hasImages) {
-                        response += "I can help you with image analysis, object recognition, or extracting text from images. ";
-                    }
-                    
-                    if (hasDocuments) {
-                        response += "I can summarize documents, extract key information, or answer questions about the content. ";
-                    }
-                    
-                    response += "What specific assistance would you like with these files?";
-                } else if (lowerMessage.includes('code') || lowerMessage.includes('javascript') || lowerMessage.includes('html') || lowerMessage.includes('css')) {
-                    // Code response
-                    const codeExample = `// Example: File Upload Functionality
-function handleFileUpload(files) {
-    const uploadedFiles = [];
-    
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-        
-        reader.onload = function(e) {
-            uploadedFiles.push({
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                content: e.target.result
-            });
-            
-            // Display file in UI
-            displayUploadedFile(file);
-        };
-        
-        reader.readAsDataURL(file);
-    }
-    
-    return uploadedFiles;
-}`;
-                    
-                    typeMessage(codeExample, true);
-                    return;
-                } else {
-                    // Regular text response
-                    const responses = [
-                        "I understand your request. Let me help you with that. I can provide detailed information, generate code, or assist with any specific questions you might have about your project.",
-                        "That's an interesting question. Based on my knowledge, I can offer several approaches to solve this problem. Would you like me to elaborate on any specific aspect?",
-                        "Thanks for your message! I'm processing your request and will provide a comprehensive response. Is there anything specific you'd like me to focus on?",
-                        "I've analyzed your query and can provide multiple solutions. Let me know if you'd like me to proceed with the most common approach or if you have specific requirements."
-                    ];
-                    
-                    response = responses[Math.floor(Math.random() * responses.length)];
-                }
-                
+                // Hide typing indicator and show response
+                typingIndicator.style.display = 'none';
                 typeMessage(response);
-            }, 1000);
-        }
-        
-        // Function to handle file selection
-        function handleFileSelect(e) {
-            const files = e.target.files;
-            if (files.length === 0) return;
-            
-            selectedFiles.innerHTML = '';
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
                 
-                // Check file size (limit to 10MB)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert(`File ${file.name} is too large. Maximum size is 10MB.`);
-                    continue;
-                }
-                
-                const fileElement = document.createElement('div');
-                fileElement.classList.add('uploaded-file');
-                fileElement.innerHTML = `
-                    <i class="fas fa-${getFileIcon(file.type)}"></i>
-                    ${file.name} (${formatFileSize(file.size)})
-                    <button class="remove-file" data-index="${i}">&times;</button>
-                `;
-                
-                selectedFiles.appendChild(fileElement);
-                
-                // Add remove functionality
-                fileElement.querySelector('.remove-file').addEventListener('click', function() {
-                    // Create a new FileList without the removed file
-                    const dt = new DataTransfer();
-                    for (let j = 0; j < files.length; j++) {
-                        if (j !== parseInt(this.getAttribute('data-index'))) {
-                            dt.items.add(files[j]);
-                        }
-                    }
-                    fileInput.files = dt.files;
-                    fileElement.remove();
-                });
+            } catch (error) {
+                // Hide typing indicator and show error
+                typingIndicator.style.display = 'none';
+                addMessage(`Error: ${error.message}`, false);
+                showError(error.message);
+            } finally {
+                // Re-enable input
+                chatInput.disabled = false;
+                sendButton.disabled = false;
+                chatInput.focus();
             }
         }
-        
-        // Function to display uploaded files in the input area
-        function displayUploadedFiles(files) {
-            uploadedFiles.innerHTML = '';
-            
-            files.forEach((file, index) => {
-                const fileElement = document.createElement('div');
-                fileElement.classList.add('uploaded-file');
-                fileElement.innerHTML = `
-                    <i class="fas fa-${getFileIcon(file.type)}"></i>
-                    ${file.name}
-                    <button class="remove-file" data-index="${index}">&times;</button>
-                `;
-                
-                uploadedFiles.appendChild(fileElement);
-                
-                // Add remove functionality
-                fileElement.querySelector('.remove-file').addEventListener('click', function() {
-                    currentFiles.splice(parseInt(this.getAttribute('data-index')), 1);
-                    displayUploadedFiles(currentFiles);
-                    updateSendButton();
-                });
-            });
-            
-            updateSendButton();
-        }
-        
-        // Function to read file as text or data URL
-        function readFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    resolve({
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        content: e.target.result
-                    });
-                };
-                
-                reader.onerror = function(e) {
-                    reject(e);
-                };
-                
-                if (file.type.startsWith('image/') || file.type === 'application/pdf') {
-                    reader.readAsDataURL(file);
-                } else {
-                    reader.readAsText(file);
-                }
-            });
-        }
-        
-        // Function to simulate file download
-        function downloadFile(filename, content) {
-            const element = document.createElement('a');
-            element.setAttribute('href', content);
-            element.setAttribute('download', filename);
-            element.style.display = 'none';
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }
-        
+
         // Event Listeners
         
-        // Send message on button click
-        sendButton.addEventListener('click', () => {
-            const message = chatInput.value.trim();
-            if (message || currentFiles.length > 0) {
-                addMessage(message, true, currentFiles);
-                chatInput.value = '';
-                simulateBotResponse(message, currentFiles);
-                currentFiles = [];
-                displayUploadedFiles(currentFiles);
-                updateSendButton();
+        // Save API key
+        saveKeyBtn.addEventListener('click', () => {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                showError('Please enter a valid API key');
+                return;
             }
+
+            if (apiKey.length < 20) {
+                showError('Please enter a valid Gemini API key');
+                return;
+            }
+
+            geminiApiKey = apiKey;
+            apiKeyInput.type = 'password';
+            apiKeyInput.disabled = true;
+            saveKeyBtn.disabled = true;
+            saveKeyBtn.innerHTML = '<i class="fas fa-check"></i> API Key Saved';
+            
+            // Enable chat
+            chatInput.disabled = false;
+            sendButton.disabled = false;
+            chatInput.placeholder = "Ask Gemini anything...";
+            chatInput.focus();
+
+            // Add welcome message
+            addMessage("Hello! I'm Gemini AI. How can I help you today?", false);
         });
+
+        // Send message on button click
+        sendButton.addEventListener('click', sendMessage);
         
         // Send message on Enter key
         chatInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
-                sendButton.click();
+                sendMessage();
             }
         });
-        
-        // Update send button state when input changes
-        chatInput.addEventListener('input', updateSendButton);
-        
-        // Open upload modal
-        uploadBtn.addEventListener('click', () => {
-            uploadModal.style.display = 'flex';
-        });
-        
-        attachFileBtn.addEventListener('click', () => {
-            uploadModal.style.display = 'flex';
-        });
-        
-        imageUploadBtn.addEventListener('click', () => {
-            uploadModal.style.display = 'flex';
-            // Could add filtering for images only here
-        });
-        
-        // Close modal
-        closeModal.addEventListener('click', () => {
-            uploadModal.style.display = 'none';
-        });
-        
-        cancelUpload.addEventListener('click', () => {
-            uploadModal.style.display = 'none';
-        });
-        
-        // Upload area click
-        uploadArea.addEventListener('click', () => {
-            fileInput.click();
-        });
-        
-        // Handle file selection
-        fileInput.addEventListener('change', handleFileSelect);
-        
-        // Confirm upload
-        confirmUpload.addEventListener('click', async () => {
-            const files = fileInput.files;
-            if (files.length === 0) {
-                alert('Please select at least one file to upload.');
-                return;
-            }
-            
-            // Read all files
-            const filePromises = [];
-            for (let i = 0; i < files.length; i++) {
-                filePromises.push(readFile(files[i]));
-            }
-            
-            try {
-                const fileData = await Promise.all(filePromises);
-                currentFiles = [...currentFiles, ...fileData];
-                displayUploadedFiles(currentFiles);
-                uploadModal.style.display = 'none';
-                fileInput.value = ''; // Reset file input
-                selectedFiles.innerHTML = ''; // Clear selected files display
-                
-                // Auto-focus on chat input
-                chatInput.focus();
-            } catch (error) {
-                alert('Error reading files: ' + error.message);
+
+        // Show/hide API key
+        apiKeyInput.addEventListener('focus', () => {
+            if (apiKeyInput.type === 'password') {
+                apiKeyInput.type = 'text';
             }
         });
-        
-        // Initialize send button state
-        updateSendButton();
-        
-        // Focus on input when page loads
-        chatInput.focus();
-        
-        // Demo: Simulate initial typing message after page loads
-        setTimeout(() => {
-            const demoMessage = "I see you're interested in file uploads. I can now process documents, images, and other file types. Try uploading a file to see how it works!";
-            typeMessage(demoMessage);
-        }, 2000);
+
+        apiKeyInput.addEventListener('blur', () => {
+            if (apiKeyInput.type === 'text' && geminiApiKey) {
+                apiKeyInput.type = 'password';
+            }
+        });
+
+        // Load saved API key from localStorage (optional)
+        window.addEventListener('load', () => {
+            const savedApiKey = localStorage.getItem('geminiApiKey');
+            if (savedApiKey) {
+                geminiApiKey = savedApiKey;
+                apiKeyInput.value = '•'.repeat(20);
+                apiKeyInput.disabled = true;
+                saveKeyBtn.disabled = true;
+                saveKeyBtn.innerHTML = '<i class="fas fa-check"></i> API Key Saved';
+                chatInput.disabled = false;
+                sendButton.disabled = false;
+                chatInput.placeholder = "Ask Gemini anything...";
+                addMessage("Welcome back! How can I help you today?", false);
+            }
+        });
+
+        // Save API key to localStorage when entered
+        saveKeyBtn.addEventListener('click', () => {
+            if (geminiApiKey) {
+                localStorage.setItem('geminiApiKey', geminiApiKey);
+            }
+        });
     </script>
 </body>
 </html>
