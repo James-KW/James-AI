@@ -1,0 +1,9 @@
+{
+  "name": "James AI Chat",
+  "short_name": "James AI", 
+  "description": "AI Chat with Real-time Typing",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea"
+}
